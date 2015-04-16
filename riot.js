@@ -1,11 +1,12 @@
-/* Riot v2.0.14, @license MIT, (c) 2015 Muut Inc. + contributors */
+/* Riot WIP, @license MIT, (c) 2015 Muut Inc. + contributors */
 
 ;(function(window) {
   // 'use strict' does not allow us to override the events properties https://github.com/muut/riotjs/blob/dev/lib/tag/update.js#L7-L10
   // it leads to the following error on firefox "setting a property that has only a getter"
   //'use strict'
 
-  var riot = { version: 'v2.0.14', settings: {} }
+  var riot = { version: 'WIP', settings: {} }
+  var ie_version = checkIE()
 
 riot.observable = function(el) {
 
@@ -864,13 +865,59 @@ function extend(obj, from, from2) {
   return from2 ? extend(obj, from2) : obj
 }
 
+function checkIE() {
+  if (window) {
+    var ua = navigator.userAgent
+    var msie = ua.indexOf('MSIE ')
+    if (msie > 0) {
+      return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10)
+    }
+    else {
+      return 0
+    }
+  }
+}
+
+function optionInnerHTML(el, html) {
+  var opt = document.createElement('option'),
+      valueRegex = /value="([^"]+)"/,
+      valuesMatch = html.match(valueRegex),
+      selectedRegex = /selected="([^"]+)"/,
+      selectedMatch = html.match(selectedRegex)
+
+  opt.innerHTML = html
+  if (valuesMatch) {
+    opt.value = valuesMatch[1]
+  }
+
+  if (selectedMatch) {
+    opt.selected = selectedMatch[1]
+  }
+  el.appendChild(opt)
+}
+
+function tbodyInnerHTML(tbody, html) {
+  var div = document.createElement('div')
+  div.innerHTML = '<table>' + html + '</table>'
+  while(tbody.firstChild) {
+    tbody.removeChild(tbody.firstChild)
+  }
+  tbody.appendChild(div.firstChild.firstChild)
+}
+
 function mkdom(template) {
   var tag_name = template.trim().slice(1, 3).toLowerCase(),
       root_tag = /td|th/.test(tag_name) ? 'tr' : tag_name == 'tr' ? 'tbody' : 'div',
       el = document.createElement(root_tag)
 
   el.stub = true
-  el.innerHTML = template
+  if (tag_name === 'op' && ie_version < 10 && ie_version > 0) {
+    optionInnerHTML(el, template)
+  } else if (root_tag === 'tbody' && ie_version < 10 && ie_version > 0) {
+    tbodyInnerHTML(el, template)
+  } else {
+    el.innerHTML = template
+  }
   return el
 }
 
