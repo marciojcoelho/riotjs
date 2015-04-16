@@ -825,6 +825,11 @@ function update(expressions, tag, item) {
     } else if (attr_name == 'value') {
       dom.value = value
 
+    // <option selected="{ expr }" IE < 10
+    } else if (attr_name == 'riot-selected') {
+      attr_name = attr_name.slice(5)
+      value ? dom.setAttribute(attr_name, value) : remAttr(dom, attr_name)
+
     // <img src="{ expr }">
     } else if (attr_name.slice(0, 5) == 'riot-') {
       attr_name = attr_name.slice(5)
@@ -844,6 +849,7 @@ function update(expressions, tag, item) {
   })
 
 }
+
 function each(els, fn) {
   for (var i = 0, len = (els || []).length, el; i < len; i++) {
     el = els[i]
@@ -891,18 +897,9 @@ function optionInnerHTML(el, html) {
   }
 
   if (selectedMatch) {
-    opt.selected = selectedMatch[1]
+    opt.setAttribute('riot-selected', selectedMatch[1])
   }
   el.appendChild(opt)
-}
-
-function tbodyInnerHTML(tbody, html) {
-  var div = document.createElement('div')
-  div.innerHTML = '<table>' + html + '</table>'
-  while(tbody.firstChild) {
-    tbody.removeChild(tbody.firstChild)
-  }
-  tbody.appendChild(div.firstChild.firstChild)
 }
 
 function mkdom(template) {
@@ -913,9 +910,7 @@ function mkdom(template) {
   el.stub = true
   if (tag_name === 'op' && ie_version < 10 && ie_version > 0) {
     optionInnerHTML(el, template)
-  } else if (root_tag === 'tbody' && ie_version < 10 && ie_version > 0) {
-    tbodyInnerHTML(el, template)
-  } else {
+  }else {
     el.innerHTML = template
   }
   return el
