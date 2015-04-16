@@ -110,9 +110,13 @@ describe('Compiler Browser', function() {
           '<loop-option><\/loop-option>',
           '<script type=\"riot\/tag\" src=\"tag\/loop-option.tag\"><\/script>',
 
-          // loop option
+          // loop option with selected
           '<loop-option-selected><\/loop-option-selected>',
           '<script type=\"riot\/tag\" src=\"tag\/loop-option-selected.tag\"><\/script>',
+
+          // loop dd
+          '<loop-dd><\/loop-dd>',
+          '<script type=\"riot\/tag\" src=\"tag\/loop-dd.tag\"><\/script>',
 
           // multiple mount at same time
           '<multi-mount value="1"><\/multi-mount>',
@@ -389,6 +393,12 @@ describe('Compiler Browser', function() {
     var tag = riot.mount('loop-option-selected')[0],
         root = tag.root
     expect(root.innerHTML).to.be('<select> <option value="1" selected="selected">Peter</option><option value="2">Sherman</option><option value="3">Laura</option> </select>')
+  })
+
+  it('loop dd', function() {
+    var tag = riot.mount('loop-dd')[0],
+        root = tag.root
+    expect(root.innerHTML).to.be('<dl> <dd>Peter</dd><dd>Sherman</dd><dd>Laura</dd> </dl>')
   })
 
   it('loop table item correct', function() {
