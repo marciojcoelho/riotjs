@@ -179,7 +179,6 @@ tmpl('{ undefined } - { false } - { null } - { 0 }', {})
 
 */
 
-
 var brackets = (function(orig, s, b) {
   return function(x) {
 
@@ -328,6 +327,7 @@ var tmpl = (function() {
 
         // prefix vars (name => data.name)
         + (s.replace(reVars, function(s, _, v) { return v ? '(d.'+v+'===undefined?'+(typeof window == 'undefined' ? 'global.' : 'window.')+v+':d.'+v+')' : s })
+
 
           // break the expression if its empty (resulting in undefined value)
           || 'x')
@@ -738,8 +738,9 @@ function Tag(impl, conf) {
     self.trigger('unmount')
     toggle()
     self.off('*')
-    delete root._tag
-
+    if (root._tag) {
+      delete root._tag
+    }
   }
 
   function toggle(isMount) {
