@@ -331,7 +331,7 @@ var tmpl = (function() {
 
           // break the expression if its empty (resulting in undefined value)
           || 'x')
-
+      + '}catch(e){'
       + '}finally{return '
 
         // default to empty string for falsy values except zero
@@ -725,7 +725,7 @@ function Tag(impl, conf) {
           })
         } else
           // otherwise just delete the tag instance
-          delete parent.tags[tagName]
+          parent.tags[tagName] = undefined
       } else {
         while (el.firstChild) el.removeChild(el.firstChild)
       }
@@ -738,9 +738,7 @@ function Tag(impl, conf) {
     self.trigger('unmount')
     toggle()
     self.off('*')
-    if (root._tag) {
-      delete root._tag
-    }
+    root._tag = undefined
   }
 
   function toggle(isMount) {
@@ -922,13 +920,15 @@ function optionInnerHTML(el, html) {
   el.appendChild(opt)
 }
 
-function tbodyInnerHTML(tbody, html) {
+function tbodyInnerHTML(el, html, tagName) {
   var div = document.createElement('div')
   div.innerHTML = '<table>' + html + '</table>'
-  while(tbody.firstChild) {
-    tbody.removeChild(tbody.firstChild)
+
+  if (/td|th/.test(tagName)) {
+    el.appendChild(div.firstChild.firstChild.firstChild.firstChild)
+  } else {
+    el.appendChild(div.firstChild.firstChild.firstChild)
   }
-  tbody.appendChild(div.firstChild.firstChild)
 }
 
 function mkdom(template) {
@@ -940,7 +940,7 @@ function mkdom(template) {
 
   if (tagName === 'op' && ieVersion && ieVersion < 10) {
     optionInnerHTML(el, template)
-  } else if (rootTag === 'tbody' && ieVersion && ieVersion < 10) {
+  } else if ((rootTag === 'tr' || rootTag === 'tbody' ) && ieVersion && ieVersion < 10) {
     tbodyInnerHTML(el, template)
   } else {
     el.innerHTML = template
